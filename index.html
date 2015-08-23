@@ -1,0 +1,130 @@
+<!doctype html>
+<html>
+<head>
+	<meta charset="utf-8"></meta>
+	<title>Where is Mucuvinha?</title>
+	<style>
+		canvas
+		{
+			position: absolute;
+			top: 0px;
+			bottom: 0px;
+			left: 0px;
+			right: 0px;
+			margin: auto;
+		}
+	</style>
+</head>
+
+<body>
+    <script type="text/javascript" src="level.js" charset="utf-8"></script>
+    <script type="text/javascript" src="sprite.js" charset="utf-8"></script>
+    <script type="text/javascript" src="gamemanager.js" charset="utf-8"></script>
+    <script type="text/javascript" src="misc.js" charset="utf-8"></script>
+	<script>
+	
+        //document.write(unescape("%3Cscript src='level.js' type='text/javascript'%3E%3C/script%3E"));
+        
+		var pontuacao = 0;
+		var canvas;
+		var ctx; //context
+        
+        var SCREEN_SIZE_X = 800;
+        var SCREEN_SIZE_Y = 1000;
+        
+        
+        function calculateWindowSize()
+        {
+            var w = window,
+            d = document,
+            e = d.documentElement,
+            g = d.getElementsByTagName('body')[0],
+            x = w.innerWidth || e.clientWidth || g.clientWidth,
+            y = w.innerHeight|| e.clientHeight|| g.clientHeight;
+        
+            SCREEN_SIZE_X = x/1.5;
+            
+            if ( SCREEN_SIZE_X / 1.5 > (y + 140 ) )
+            {
+                SCREEN_SIZE_X = ( y - 140 ) * 1.5;
+            }
+            SCREEN_SIZE_Y = y ;
+
+            
+            //alert( SCREEN_SIZE_Y );
+        }
+        
+        function relMouseCoords(event)
+        {
+            var totalOffsetX = 0;
+            var totalOffsetY = 0;
+            var canvasX = 0;
+            var canvasY = 0;
+            var currentElement = this;
+
+            do{
+                totalOffsetX += currentElement.offsetLeft - currentElement.scrollLeft;
+                totalOffsetY += currentElement.offsetTop - currentElement.scrollTop;
+            }
+            while(currentElement = currentElement.offsetParent)
+
+            canvasX = event.pageX - totalOffsetX;
+            canvasY = event.pageY - totalOffsetY;
+
+            return {x:canvasX, y:canvasY}
+        }
+        
+        HTMLCanvasElement.prototype.relMouseCoords = relMouseCoords;
+		
+		function clique(event)
+		{
+            var canvasX, canvasY;
+            
+            coords = canvas.relMouseCoords(event);
+            canvasX = coords.x;
+            canvasY = coords.y;
+            
+            if ( canvasX < 0 || canvasY < 0 || canvasX > SCREEN_SIZE_X || canvasY > SCREEN_SIZE_Y )
+            {
+                return;
+            }
+            
+            GameManager_clicked( canvasX, canvasY );
+            
+			//alert(canvasX);
+		}
+		
+		function roda()
+		{
+			GameManager_play();
+            window.requestAnimationFrame = window.requestAnimationFrame || function(callback) { window.setTimeout(callback,16) };
+			window.requestAnimationFrame( roda );
+		}
+		
+		function main()
+		{
+            calculateWindowSize();
+            
+			canvas = document.createElement("canvas");
+			canvas.width = SCREEN_SIZE_X;
+			canvas.height = SCREEN_SIZE_Y;
+			//canvas.style.border = "1px solid #000";
+			
+			ctx = canvas.getContext("2d");
+			
+			document.body.appendChild(canvas);
+			
+			document.addEventListener("mousedown", clique);
+            
+            
+            GameManager_init();
+            
+			roda();
+		}
+		
+		main();
+	
+	</script>
+</body>
+
+</html>
